@@ -9,8 +9,8 @@ class DeepFm(object):
         self.mlps = mlps
         self.useFm = useFm
         self.useDeep = useDeep
-        self.dropFm = dropFm if dropFm else [1,1]
-        self.dropDeeps = dropDeeps if dropDeeps else [1]*(len(mlps+1))
+        self.dropFm = dropFm if dropFm else [0,0]
+        self.dropDeeps = dropDeeps if dropDeeps else [0]*(len(mlps+1))
         self.seed = seed
     
     def build(self):
@@ -39,7 +39,7 @@ class DeepFm(object):
         deep = layers.Dropout(self.dropDeeps[0], name='dropDeep_0')(deep)
         for i,n in enumerate(self.mlps):
             deep = layers.Dense(n, activation='linear')(deep)
-            # deep = layers.BatchNormalization(name='bn_%d'%i)(deep)
+            deep = layers.BatchNormalization(name='bn_%d'%i)(deep)
             deep = tf.nn.relu(deep)
             deep = layers.Dropout(self.dropDeeps[1+i], name='dropDeep_%d'%(i+1))(deep)
         # ------------------- deepFm ---------------------

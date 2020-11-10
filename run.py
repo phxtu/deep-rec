@@ -17,15 +17,15 @@ if not os.path.exists(outdir):
 
 # config
 conf = {
-    'batch':32,
+    'batch':128,
     'lr':1e-3,
     'epochs':300,
-    'emb_size': 16,
-    'mlps':[360, 200, 80],
+    'emb_size': 10,
+    'mlps':[400, 400, 400],
     'useFm':True,
     'useDeep':True,
-    'dropFm':[0.5,0.5],
-    'dropDeeps':[0.5]*4,
+    'dropFm':[0,0],
+    'dropDeeps':[0]*4,
     'seed':666,
     'logdir':'%s/logs'%outdir,
     'mdlfig':'%s/mdl.png'%outdir,
@@ -50,9 +50,9 @@ cats = open('data/criteo/ids.txt').readlines()
 for i,cat in enumerate(cats):
     key = cat.strip()
     idmap[key] = 14 + i
-# training & val data
+# training & val data 4584094
 trn_data = DataSet('data/train.txt',1e6,idmap,conf['batch'],workers=5, queue_size=200)
-val_data = DataSet('data/val.txt',4584094,idmap,conf['batch'],workers=5, queue_size=200)
+val_data = DataSet('data/val.txt',1e6,idmap,conf['batch'],workers=5, queue_size=200)
 # build model
 mdl = Model(1+len(idmap),conf['emb_size'],conf['mlps'],conf['useFm'],conf['useDeep'],
    conf['dropFm'], conf['dropDeeps'], conf['seed']).build()
