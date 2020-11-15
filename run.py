@@ -6,12 +6,16 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.36
 sess = tf.Session(config=config)
 K.set_session(sess)
 from data.datasetMproc import DataSet
-from models.deepFm import DeepFm as Model
+from models.deepFm import DeepFm
+from models.xdeepFm import XDeepFm
 import os
 import sys
-import json
+import json,time
 
-outdir='mdls/mdl_%s'%sys.argv[1]
+mdls = ['deepFm', 'xdeepFm']
+mdlName = sys.argv[1]
+assert mdlName in mdls, "%s not supported now, must be one of %s"%(mdlName, mdls)
+outdir='mdls/%s/%s'%(mdlName, time.strftime("%Y%m%d_%H%M%S", time.localtime()))
 if not os.path.exists(outdir):
     os.makedirs(outdir)
 
@@ -22,6 +26,7 @@ conf = {
     'epochs':300,
     'emb_size': 10,
     'mlps':[400, 400, 400],
+    'cins':[200]*3,
     'useFm':True,
     'useDeep':True,
     'dropFm':[0,0],
@@ -37,7 +42,7 @@ if len(sys.argv) > 2:
             conf[k] = int(v)
         elif k in ['lr']:
             conf[k] = float(v)
-        elif k in ['mlps']:
+        elif k in ['mlps', 'cins']:
             conf[k] = [int(e) for e in v.split(',')]
         elif k in ['dropFm','dropDeeps']:
             conf[k] = [float(e) for e in v.split(',')]
@@ -54,8 +59,11 @@ for i,cat in enumerate(cats):
 trn_data = DataSet('data/train.txt',1e6,idmap,conf['batch'],workers=5, queue_size=200)
 val_data = DataSet('data/val.txt',1e6,idmap,conf['batch'],workers=5, queue_size=200)
 # build model
-mdl = Model(1+len(idmap),conf['emb_size'],conf['mlps'],conf['useFm'],conf['useDeep'],
-   conf['dropFm'], conf['dropDeeps'], conf['seed']).build()
+if mdlName == 'deepFm':
+    Model = DeepFm(1+len(idmap),conf['emb_size'],conf['mlps'],conf['useFm'],conf['useDeep'],conf['dropFm'], conf['dropDeeps'], conf['seed'])
+elif mdlName == 'xdeepFm':
+    Model = XDeepFm(1+len(idmap),conf['emb_size'],conf['mlps'],conf['cins'],conf['useFm'],conf['useDeep'],conf['dropFm'], conf['dropDeeps'], conf['seed'])
+mdl = Model.build()
 mdl.summary()
 tf.keras.utils.plot_model(mdl, conf['mdlfig'], show_shapes=True)
 # compile model
