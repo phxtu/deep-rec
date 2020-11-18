@@ -24,6 +24,8 @@
 ## 模型
 - [DeepFM: Factorization-Machine based Neural Network](https://www.ijcai.org/proceedings/2017/0239.pdf)
     - 在验证集上的结果：`loss:0.4465128124150221, auc:0.8052565`
+- [eXtreme Deep Factorization Machine (xDeepFM)](https://arxiv.org/abs/1803.05170)
+    - 在验证集上的结果：`loss:0.4437886869439382, auc:0.80759335`
 - TODO
-    - 其它模型，如xDeepFm
+    - 其它模型
 

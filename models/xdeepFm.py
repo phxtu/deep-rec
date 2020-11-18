@@ -31,6 +31,7 @@ class XDeepFm(object):
         c0 = tf.expand_dims(featEmbs, 2)
         ci = c0
         cins = [None]*len(self.cins)
+        reg = tf.keras.regularizers.l2(1e-4)
         for i, c in enumerate(self.cins):
             # outer product: c_i, c0
             ci = tf.transpose(ci, [0,2,1,3]) * c0
@@ -45,7 +46,7 @@ class XDeepFm(object):
             ci = tf.transpose(ci, [0,3,1,2])
             shp = ci.get_shape()
             ci = tf.reshape(ci, [-1, shp[1], shp[2]*shp[3]])
-            ci = layers.Dense(c, activation=None, use_bias=False, name='cin_dnn_%d'%i)(ci)
+            ci = layers.Dense(c, activation=None, use_bias=False, kernel_regularizer=reg, name='cin_dnn_%d'%i)(ci)
             ci = tf.expand_dims(tf.transpose(ci, [0,2,1]), 2)
             # reduce sum along embedding dim
             cins[i] = tf.reduce_sum(ci, axis=[2,3], name='cin_%d'%i)
